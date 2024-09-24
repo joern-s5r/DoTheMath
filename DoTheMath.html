@@ -96,66 +96,15 @@
 	</style>
 	
 	<script>
-		
-		const COOKIE_NAME = "DOTheMathCookie";
-		const COOKIE_VERSION = 1;
 
 		document.addEventListener("DOMContentLoaded", function() {
 			initButtons();
 		});
 
 		function initButtons(){
-
 			document.getElementById("do-calculation").addEventListener('click', doCalculation);
 			document.getElementById("do-cancel-calculation").addEventListener('click', doCancelCalculation);
 			document.getElementById("do-check-calculation").addEventListener('click', doCheckCalculation);
-
-			validateCookieVersion();
-			resumeFromCookie();
-		}
-
-		function resumeFromCookie() {
-
-			const COOKIE = getCookie();
-			const operationList = COOKIE.operationList;
-			if(operationList){
-
-				document.getElementsByClassName("start-view")[0].classList.add("my-hidden");
-				document.getElementsByClassName("calculation-view")[0].classList.remove("my-hidden");
-
-				const taskContainerBase = document.getElementsByClassName("task-container")[0];
-
-				for(let i = 0; i < operationList.length; i++){
-
-					const taskContainer = taskContainerBase.cloneNode(true);
-					taskContainer.classList.remove("my-hidden");
-					taskContainer.getElementsByTagName("label")[0].setAttribute("for", "task-"+i);
-					taskContainer.getElementsByTagName("input")[0].setAttribute("id", "task-"+i);
-
-					const operand1 = operationList[i].operand1;
-					const operand2 = operationList[i].operand2;
-					const operator = operationList[i].operator;
-					const result = operationList[i].result;
-
-					taskContainer.getElementsByTagName("label")[0].innerText = operand1 + " " + operator + " " + operand2;
-
-					taskContainer.setAttribute("data-task-result", result)
-					taskContainerBase.after(taskContainer);
-				}
-			}
-		}
-
-		function validateCookieVersion() {
-			const COOKIE = getCookie();
-			const VERSION = COOKIE.version;
-			const RESET = !VERSION || (VERSION !== COOKIE_VERSION);
-			if(RESET){
-				deleteCookie();
-				const newCookie = {};
-				newCookie.version = COOKIE_VERSION;
-				newCookie.operationList = {};
-				setCookie(newCookie, null);
-			}
 		}
 
 		function doCalculation(){
@@ -175,7 +124,6 @@
 			}
 
 			const taskContainerBase = document.getElementsByClassName("task-container")[0];
-			const operationListJson = {};
 
 			const taskCount = document.getElementById("taskCount").value;
 			for (let i = 0; i < taskCount; i++) {
@@ -217,16 +165,8 @@
 				}
 				taskContainer.setAttribute("data-task-result", result)
 				taskContainerBase.after(taskContainer);
-
-				const operationJson = {
-					"operand1": operand1,
-					"operand2": operand2,
-					"operator": operator,
-					"result": result
-				};
-				operationListJson.push(operationJson);
 			}
-			getCookie().operationList = operationListJson;
+
 		}
 
 		function doCancelCalculation(){
@@ -235,7 +175,7 @@
 
 			const taskList = document.querySelectorAll(".task-container:not(.my-hidden)");
 			taskList.forEach((task) => {
-				// task.remove();
+				task.remove();
 			});
 		}
 
@@ -263,43 +203,6 @@
 			const maxFloored = Math.floor(max);
 			return Math.floor(Math.random() * (maxFloored - minCeiled + 1) + minCeiled);
 		}
-
-		function setCookie(JSON_VALUE, EXPIRE_MINUTES) {
-
-			const COOKIE_VALUE = JSON.stringify( JSON_VALUE );
-
-			let expires = "";
-			if(EXPIRE_MINUTES != null){
-				const EXPIRE_DATE = new Date();
-				EXPIRE_DATE.setMinutes(EXPIRE_DATE.getMinutes() + EXPIRE_MINUTES);
-				expires = ";expires=" + EXPIRE_DATE.toUTCString();
-			}
-			document.cookie= COOKIE_NAME + "=" +escape(COOKIE_VALUE) + expires;
-		}
-
-		function deleteCookie() {
-			setCookie({}, -1);
-		}
-
-		function getCookie() {
-
-			if (document.cookie.length > 0) {
-				COOKIE_INDEX_START=document.cookie.indexOf(COOKIE_NAME + "=");
-				if (COOKIE_INDEX_START !== -1) {
-					COOKIE_VALUE_INDEX_START = COOKIE_INDEX_START + COOKIE_NAME.length + 1;
-					COOKIE_INDEX_END = document.cookie.indexOf(";", COOKIE_VALUE_INDEX_START);
-					if (COOKIE_INDEX_END === -1){
-						COOKIE_INDEX_END = document.cookie.length;
-					}
-
-					const COOKIE_VALUE = unescape(document.cookie.substring(COOKIE_VALUE_INDEX_START, COOKIE_INDEX_END));
-					// return JSON_VALUE
-					return JSON.parse(COOKIE_VALUE);
-				}
-			}
-			return {};
-		}
-		
 	</script>
 	
   </head>
