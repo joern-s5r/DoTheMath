@@ -97,9 +97,23 @@
 	
 	<script>
 
+		const PAGE_CONFIG = "config page";
+		const PAGE_CALCULATION = "calculation page";
+		let currentPage = PAGE_CONFIG;
+
 		document.addEventListener("DOMContentLoaded", function() {
+			initLeavePageConfirmation();
 			initButtons();
 		});
+
+		function initLeavePageConfirmation(){
+			window.onbeforeunload = function() {
+				if (currentPage === PAGE_CALCULATION) {
+					// note: support for custom messages was removed, see: https://chromestatus.com/feature/5349061406228480
+					return "Wirklich abbrechen?";
+				}
+			};
+		}
 
 		function initButtons(){
 			document.getElementById("do-calculation").addEventListener('click', doCalculation);
@@ -108,6 +122,7 @@
 		}
 
 		function doCalculation(){
+			currentPage = PAGE_CALCULATION;
 			document.getElementsByClassName("start-view")[0].classList.add("my-hidden");
 			document.getElementsByClassName("calculation-view")[0].classList.remove("my-hidden");
 
@@ -170,13 +185,7 @@
 		}
 
 		function doCancelCalculation(){
-			document.getElementsByClassName("start-view")[0].classList.remove("my-hidden");
-			document.getElementsByClassName("calculation-view")[0].classList.add("my-hidden");
-
-			const taskList = document.querySelectorAll(".task-container:not(.my-hidden)");
-			taskList.forEach((task) => {
-				task.remove();
-			});
+			location.reload();
 		}
 
 		function doCheckCalculation(){
